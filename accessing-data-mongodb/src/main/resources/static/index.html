@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Management</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+<h2>Student Data Management</h2>
+
+<form id="studentForm">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required><br><br>
+
+    <label for="edad">Edad:</label>
+    <input type="number" id="edad" name="edad" required><br><br>
+
+    <label for="correo">Correo:</label>
+    <input type="email" id="correo" name="correo" required><br><br>
+
+    <button type="submit">Agregar Estudiante</button>
+</form>
+
+<br><br>
+
+<h3>Listado de Estudiantes</h3>
+
+<table id="studentTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Edad</th>
+        <th>Correo</th>
+    </tr>
+    </thead>
+    <tbody id="studentTableBody">
+    <!-- Aquí se insertarán los datos de los estudiantes -->
+    </tbody>
+</table>
+
+<script>
+    // JavaScript para manejar la interacción con el formulario y la tabla
+
+    const studentForm = document.getElementById('studentForm');
+    const studentTableBody = document.getElementById('studentTableBody');
+
+    // Función para mostrar los estudiantes en la tabla
+    function displayStudents(students) {
+        studentTableBody.innerHTML = ''; // Limpiar la tabla antes de actualizar
+
+        students.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.id}</td>
+                <td>${student.nombre}</td>
+                <td>${student.edad}</td>
+                <td>${student.correo}</td>
+            `;
+            studentTableBody.appendChild(row);
+        });
+    }
+
+    // Función para obtener los datos de los estudiantes desde el backend
+    async function fetchStudents() {
+        try {
+            const response = await fetch('/data'); // Hacer una solicitud GET a '/data' en el backend
+            if (!response.ok) {
+                throw new Error('Error al obtener datos de estudiantes');
+            }
+            const students = await response.json(); // Convertir la respuesta a JSON
+            displayStudents(students); // Mostrar los estudiantes en la tabla
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // Manejar la presentación inicial de estudiantes al cargar la página
+    fetchStudents();
+
+    // Manejar el envío del formulario para agregar un nuevo estudiante
+    studentForm.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevenir el envío por defecto del formulario
+
+        const formData = new FormData(studentForm);
+        const nombre = formData.get('nombre');
+        const edad = formData.get('edad');
+        const correo = formData.get('correo');
+
+        const student = { nombre, edad: parseInt(edad), correo };
+
+        try {
+            const response = await fetch('/data/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(student) // Convertir el objeto a JSON antes de enviar
+            });
+            if (!response.ok) {
+                throw new Error('Error al agregar estudiante');
+            }
+            await fetchStudents(); // Actualizar la tabla después de agregar estudiante
+            studentForm.reset(); // Limpiar el formulario después de agregar estudiante
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+</script>
+</body>
+</html>
