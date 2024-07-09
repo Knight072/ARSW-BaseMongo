@@ -22,6 +22,9 @@
     <label for="edad">Edad:</label>
     <input type="number" id="edad" name="edad" required><br><br>
 
+    <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+    <input type="date" id="fechaNacimiento" name="fechaNacimiento" required><br><br>
+
     <label for="correo">Correo:</label>
     <input type="email" id="correo" name="correo" required><br><br>
 
@@ -38,6 +41,7 @@
         <th>ID</th>
         <th>Nombre</th>
         <th>Edad</th>
+        <th>Fecha de Nacimiento</th>
         <th>Correo</th>
     </tr>
     </thead>
@@ -47,12 +51,9 @@
 </table>
 
 <script>
-    // JavaScript para manejar la interacción con el formulario y la tabla
-
     const studentForm = document.getElementById('studentForm');
     const studentTableBody = document.getElementById('studentTableBody');
 
-    // Función para mostrar los estudiantes en la tabla
     function displayStudents(students) {
         studentTableBody.innerHTML = ''; // Limpiar la tabla antes de actualizar
 
@@ -62,13 +63,13 @@
                 <td>${student.id}</td>
                 <td>${student.nombre}</td>
                 <td>${student.edad}</td>
+                <td>${student.fechaNacimiento}</td>
                 <td>${student.correo}</td>
             `;
             studentTableBody.appendChild(row);
         });
     }
 
-    // Función para obtener los datos de los estudiantes desde el backend
     async function fetchStudents() {
         try {
             const response = await fetch('/data'); // Hacer una solicitud GET a '/data' en el backend
@@ -82,10 +83,8 @@
         }
     }
 
-    // Manejar la presentación inicial de estudiantes al cargar la página
     fetchStudents();
 
-    // Manejar el envío del formulario para agregar un nuevo estudiante
     studentForm.addEventListener('submit', async function(event) {
         event.preventDefault(); // Prevenir el envío por defecto del formulario
 
@@ -93,8 +92,9 @@
         const nombre = formData.get('nombre');
         const edad = formData.get('edad');
         const correo = formData.get('correo');
+        const fechaNacimiento = formData.get('fechaNacimiento');
 
-        const student = { nombre, edad: parseInt(edad), correo };
+        const student = { nombre, edad: parseInt(edad), correo, fechaNacimiento };
 
         try {
             const response = await fetch('/data/add', {
